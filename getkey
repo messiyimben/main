@@ -1,0 +1,30 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Işınlanma ve E tuşuna basma fonksiyonu
+local function teleportAndPressE()
+    -- İlk koordinatlara ışınla
+    humanoidRootPart.CFrame = CFrame.new(-27, 8, -50)
+
+    -- E tuşuna 3 kez bas
+    for i = 1, 3 do
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+        wait(0.1) -- Her basış arasında kısa bir bekleme
+    end
+
+    -- İkinci koordinatlara ışınla
+    humanoidRootPart.CFrame = CFrame.new(36, 16, -278)
+end
+
+-- H tuşuna basıldığında fonksiyonu çağır
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.H then
+        teleportAndPressE()
+    end
+end)
