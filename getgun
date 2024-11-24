@@ -1,0 +1,33 @@
+print("Button pressed, getting Glock 21...")
+        local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Işınlanma ve F tuşuna basma fonksiyonu
+local function teleportAndPressF()
+    -- İlk koordinatlara ışınla
+    humanoidRootPart.CFrame = CFrame.new(-100, 19, -25)
+
+    -- F tuşuna 10 kez hızlı bir şekilde bas
+    for i = 1, 5 do
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)  -- F tuşuna bas
+        wait(0.01)  -- Daha hızlı basma için bekleme süresi
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)  -- F tuşunu bırak
+        wait(0.01)  -- Daha hızlı basma için bekleme süresi
+    end
+
+    -- İkinci koordinatlara ışınla
+    wait(0)  -- F tuşuna basma işleminin tamamlanması için kısa bir bekleme
+    humanoidRootPart.CFrame = CFrame.new(19, 13, -247)
+end
+
+-- K tuşuna basıldığında fonksiyonu çağır
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.K then
+        teleportAndPressF()
+    end
+end)
