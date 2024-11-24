@@ -1,0 +1,58 @@
+local Players = game:GetService("Players")
+        local UserInputService = game:GetService("UserInputService")
+        local player = Players.LocalPlayer
+        local mouse = player:GetMouse()
+
+        local guns = {
+            "Remington 870 Sawed",
+            "Glock 21",
+            "MP5SD",
+            "AK-47",
+            "MP7-S",
+            "FAMAS",
+            "Walther PP",
+            "Glock 17",
+            "P250",
+            "Micro Uzi",
+            "USP-S"
+        }
+
+        local isShooting = false  -- Shooting durumunu takip et
+
+        UserInputService.InputBegan:Connect(function(input, gameProcessed)
+            if not gameProcessed and input.UserInputType == Enum.UserInputType.MouseButton1 and not isShooting then
+                isShooting = true  -- Shooting başladı
+
+                while isShooting do
+                    for _, gunName in ipairs(guns) do
+                        local gun = player.Character:FindFirstChild(gunName)
+                        if gun and gun:FindFirstChild("Event") and gun.Event:FindFirstChild("WeaponInteraction") then
+                            local rayOrigin = mouse.UnitRay.Origin
+                            local rayDirection = mouse.UnitRay.Direction * 1000  -- Mesafe ayarlamak için
+                            local ray = Ray.new(rayOrigin, rayDirection)
+
+                            local hitPart = workspace:FindPartOnRay(ray)
+
+                            if hitPart then
+                                local args = {
+                                    [1] = ray,
+                                    [2] = hitPart,
+                                    [3] = hitPart
+                                }
+
+                                gun.Event.WeaponInteraction:FireServer(unpack(args))
+                            end
+                        end
+                    end
+
+                    wait(0.3)  -- Her etkileşim arasındaki bekleme süresi (0.1 saniye)
+                end
+            end
+        end)
+
+        -- Sol fare tuşu bırakıldığında işlemi durdur
+        UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                isShooting = false  -- Shooting bitti
+            end
+        end)
