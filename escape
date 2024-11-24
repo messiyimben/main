@@ -1,0 +1,13 @@
+local player = game.Players.LocalPlayer
+local targetPosition = Vector3.new(103, 5, -493)  -- Işınlanmak istenen pozisyon
+
+-- Işınlama fonksiyonu
+local function teleportToPosition()
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        -- Karakterin HumanoidRootPart'ını kullanarak ışınlama
+        player.Character:SetPrimaryPartCFrame(CFrame.new(targetPosition))
+    end
+end
+
+-- Işınlama fonksiyonunu çağıran bir tetikleyici
+teleportToPosition()  -- Bu fonksiyon doğrudan çağrılırsa karakter belirtilen konuma ışınlanır
