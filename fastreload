@@ -1,0 +1,35 @@
+local Players = game:GetService("Players")
+        local UserInputService = game:GetService("UserInputService")
+
+        local player = Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local guns = {
+            "Remington 870 Sawed",
+            "Glock 21",
+            "MP5SD",
+            "AK-47",
+            "MP7-S",
+            "FAMAS",
+            "Walther PP",
+            "Glock 17",
+            "P250",
+            "Micro Uzi",
+            "USP-S"
+        }
+
+        -- Kullanıcı girişi dinleyicisini tanımlama
+        local function onInputBegan(input, gameProcessed)
+            if not gameProcessed and input.KeyCode == Enum.KeyCode.Q then
+                for _, gunName in ipairs(guns) do
+                    local gun = character:FindFirstChild(gunName)
+                    if gun and gun:FindFirstChild("Event") and gun.Event:FindFirstChild("WeaponReload") then
+                        gun.Event.WeaponReload:FireServer()
+                    end
+                end
+            end
+        end
+
+        -- Dinleyiciyi başlat
+        UserInputService.InputBegan:Connect(onInputBegan)
+
+        print("Fast Reload script activated!")
