@@ -1,0 +1,117 @@
+-- Animasyon oluşturuluyor
+local Anim = Instance.new("Animation")
+Anim.AnimationId = "rbxassetid://126753849"  -- Animasyon ID'sini buraya koyun
+local track = game.Players.LocalPlayer.Character.Humanoid:LoadAnimation(Anim)
+
+-- Animasyonun aktif olup olmadığını belirten flag
+local SuperPunchACTIVE = false
+
+-- UserInputService ile tuşa basma kontrolü
+local UserInputService = game:GetService("UserInputService")
+
+-- Keybind (R tuşu) basılı tutma kontrolü
+local wfling = true
+local LP = game.Players.LocalPlayer
+local kplr = LP
+
+local Noclipping = nil
+local Clip = false
+
+-- Noclip fonksiyonu
+function noclipit()
+    Clip = false
+    wait(0.1)
+    local function NoclipLoop()
+        if Clip == false and kplr.Character ~= nil then
+            for _, child in pairs(kplr.Character:GetDescendants()) do
+                if child:IsA("BasePart") and child.CanCollide == true and child.Name ~= "HumanoidRootPart" then
+                    child.CanCollide = false
+                end
+            end
+        end
+    end
+    Noclipping = game:GetService("RunService").Stepped:Connect(NoclipLoop)
+end
+
+-- Clip fonksiyonu
+function clipit()
+    if Noclipping then
+        Noclipping:Disconnect()
+    end
+    Clip = true
+end
+
+-- R tuşu basıldığında animasyonu başlat ve noclip modunu aktif et
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    -- Eğer oyun işleniyorsa, giriş işlemi yapılmasın
+    if gameProcessedEvent then return end
+    
+    -- Klavye tuşu kontrolü (R tuşu basıldığında)
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.R then
+        -- Eğer animasyon başlamamışsa başlat
+        if not SuperPunchACTIVE then
+            SuperPunchACTIVE = true  -- Animasyonu aktif et
+            track:Play(0.1, 1, 3)  -- Animasyonu başlat (yavaşlık, hız, yoğunluk)
+        end
+
+        -- Noclip aktif et
+        noclipit()
+        
+        -- wfling aktif et ve sürekli hareket mantığını başlat
+        wfling = true
+        repeat 
+            game:GetService("RunService").Heartbeat:Wait()
+            local character = LP.Character
+            local root = character.HumanoidRootPart
+            local vel, movel = nil, 0.1
+
+            while not (character and character.Parent and root and root.Parent) do
+                game:GetService("RunService").Heartbeat:Wait()
+                character = LP.Character
+                root = character.HumanoidRootPart
+            end
+
+            vel = root.Velocity
+            root.Velocity = vel * 100 + Vector3.new(0, 100, 0)
+
+            game:GetService("RunService").RenderStepped:Wait()
+            if character and character.Parent and root and root.Parent then
+                root.Velocity = vel
+            end
+
+            game:GetService("RunService").Stepped:Wait()
+            if character and character.Parent and root and root.Parent then
+                root.Velocity = vel + Vector3.new(0, movel, 0)
+                movel = movel * -1
+            end
+        until wfling == false
+    end
+end)
+
+-- R tuşu bırakıldığında animasyonu durdur ve noclip'i sonlandır
+UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+    
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.R then
+        if SuperPunchACTIVE then
+            track:Stop()  -- Animasyonu durdur
+            SuperPunchACTIVE = false  -- Animasyonu durdur
+        end
+
+        -- Noclip'i durdur
+        wfling = false
+        clipit()
+    end
+end)
+
+-- Animasyonun aktif olup olmadığını sürekli kontrol et
+while true do
+    wait(0.1)  -- Sürekli kontrol et
+    if SuperPunchACTIVE then
+        -- Eğer R tuşuna basılı tutuluyorsa animasyon devam etsin
+        if not track.IsPlaying then
+            -- Animasyonu her zaman düzgün hızda başlatmak için tekrardan başlatıyoruz
+            track:Play(0.1, 1, 3)  -- Yavaşlık, hız, yoğunluk
+        end
+    end
+end
