@@ -1,0 +1,150 @@
+local function runScript1()
+          spawn(function()
+              local success, result = pcall(function()
+                  loadstring(game:HttpGet("https://raw.githubusercontent.com/testmarveljanitor/testmarveljanitor/refs/heads/main/%C4%B0nsane", true))()
+              end)
+              if not success then
+                  warn("İnsane script hatası: " .. result)
+              else
+                  print("İnsane script başarıyla çalıştı!")
+              end
+          end)
+      end
+
+      -- ThrowHead Script
+      local function runScript2()
+          spawn(function()
+              local success, result = pcall(function()
+                  loadstring(game:HttpGet("https://raw.githubusercontent.com/messiyimben/main/refs/heads/main/throwHead", true))()
+              end)
+              if not success then
+                  warn("ThrowHead script hatası: " .. result)
+              else
+                  print("ThrowHead script başarıyla çalıştı!")
+              end
+          end)
+      end
+
+      -- Scared Script
+      local function runScript3()
+          spawn(function()
+              local success, result = pcall(function()
+                  loadstring(game:HttpGet("https://raw.githubusercontent.com/messiyimben/main/refs/heads/main/scared", true))()
+              end)
+              if not success then
+                  warn("Scared script hatası: " .. result)
+              else
+                  print("Scared script başarıyla çalıştı!")
+              end
+          end)
+      end
+
+      -- Punch Script
+      local function runScript4()
+          spawn(function()
+              local success, result = pcall(function()
+                  loadstring(game:HttpGet("https://raw.githubusercontent.com/messiyimben/main/refs/heads/main/punch", true))()
+              end)
+              if not success then
+                  warn("Punch script hatası: " .. result)
+              else
+                  print("Punch script başarıyla çalıştı!")
+              end
+          end)
+      end
+
+      -- HeroJump Script
+      local function runScript5()
+          spawn(function()
+              local success, result = pcall(function()
+                  loadstring(game:HttpGet("https://raw.githubusercontent.com/messiyimben/main/refs/heads/main/herojump", true))()
+              end)
+              if not success then
+                  warn("HeroJump script hatası: " .. result)
+              else
+                  print("HeroJump script başarıyla çalıştı!")
+              end
+          end)
+      end
+
+      -- Brow Script
+      local function runScript6()
+          spawn(function()
+              local success, result = pcall(function()
+                  loadstring(game:HttpGet("https://raw.githubusercontent.com/messiyimben/main/refs/heads/main/brow", true))()
+              end)
+              if not success then
+                  warn("Brow script hatası: " .. result)
+              else
+                  print("Brow script başarıyla çalıştı!")
+              end
+          end)
+      end
+
+      -- MegaInsane Script
+      local function runScript7()
+          spawn(function()
+              local success, result = pcall(function()
+                  loadstring(game:HttpGet("https://raw.githubusercontent.com/messiyimben/main/refs/heads/main/megainsane", true))()
+              end)
+              if not success then
+                  warn("MegaInsane script hatası: " .. result)
+              else
+                  print("MegaInsane script başarıyla çalıştı!")
+              end
+          end)
+      end
+
+      -- DinoWalk Script
+      local function runScript8()
+          spawn(function()
+              local success, result = pcall(function()
+                  loadstring(game:HttpGet("https://raw.githubusercontent.com/messiyimben/main/refs/heads/main/DinoWalk", true))()
+              end)
+              if not success then
+                  warn("DinoWalk script hatası: " .. result)
+              else
+                  print("DinoWalk script başarıyla çalıştı!")
+              end
+          end)
+      end
+
+      -- Crouch Script
+      local function runScript9()
+          spawn(function()
+              local success, result = pcall(function()
+                  loadstring(game:HttpGet("https://raw.githubusercontent.com/messiyimben/main/refs/heads/main/Crouch", true))()
+              end)
+              if not success then
+                  warn("Crouch script hatası: " .. result)
+              else
+                  print("Crouch script başarıyla çalıştı!")
+              end
+          end)
+      end
+
+      -- FloadingHead Script
+      local function runScript10()
+          spawn(function()
+              local success, result = pcall(function()
+                  loadstring(game:HttpGet("https://raw.githubusercontent.com/messiyimben/main/refs/heads/main/FloadingHead", true))()
+              end)
+              if not success then
+                  warn("FloadingHead script hatası: " .. result)
+              else
+                  print("FloadingHead script başarıyla çalıştı!")
+              end
+          end)
+      end
+
+      -- Tüm script'leri çalıştırma
+      runScript1()
+      runScript2()
+      runScript3()
+      runScript4()
+      runScript5()
+      runScript6()
+      runScript7()
+      runScript8()
+      runScript9()
+      runScript10()
