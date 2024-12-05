@@ -17,29 +17,6 @@ local kplr = LP
 local Noclipping = nil
 local Clip = false
 
--- Noclip fonksiyonu
-function noclipit()
-    Clip = false
-    wait(0.1)
-    local function NoclipLoop()
-        if Clip == false and kplr.Character ~= nil then
-            for _, child in pairs(kplr.Character:GetDescendants()) do
-                if child:IsA("BasePart") and child.CanCollide == true and child.Name ~= "HumanoidRootPart" then
-                    child.CanCollide = false
-                end
-            end
-        end
-    end
-    Noclipping = game:GetService("RunService").Stepped:Connect(NoclipLoop)
-end
-
--- Clip fonksiyonu
-function clipit()
-    if Noclipping then
-        Noclipping:Disconnect()
-    end
-    Clip = true
-end
 
 -- R tuşu basıldığında animasyonu başlat ve noclip modunu aktif et
 UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
