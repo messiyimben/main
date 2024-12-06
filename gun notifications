@@ -1,0 +1,62 @@
+-- Burada workspace içinde bulunan tool'ların isimlerini belirtiyoruz
+local toolsList = {
+    "USP-S", "USP Tactical", "Skorpion EVO", "SIG SAUER", "Remington 870 Sawed", 
+    "Remington 870", "Pen", "PKM", "P90", "P250", "Mossberg M590", "Milesmellows", 
+    "Micro UZI", "MP7S", "MP5SD", "MP5D", "MP5", "M4A1", "M1911", "Howa Type 64", 
+    "HK416", "HK33", "Glock 21", "Glock 19 [NEWRC]", "Glock 19", "Glock 17", "G36K", 
+    "FAMAS", "EUSP-S", "Colf Python", "Baretta M9", "Beanbag Shotgun", "Battering Ram", 
+    "AR-15", "AK-47", "AK-308", "AK-104"
+}
+
+-- ScreenGui oluşturuluyor
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Bildirim için bir Frame oluşturuyoruz
+local notificationFrame = Instance.new("Frame")
+notificationFrame.Parent = screenGui
+notificationFrame.Size = UDim2.new(0, 220, 0, 300)  -- Yüksekliği artırdık çünkü bildirimler üst üste eklenecek
+notificationFrame.Position = UDim2.new(0.85, 0, 0.7, 0)  -- Başlangıçta sağ alt köşe
+notificationFrame.BackgroundTransparency = 1  -- Şeffaf
+
+-- Bildirimlerin her biri için bir TextLabel oluşturuyoruz
+local function createNotificationLabel(toolName)
+    local notificationLabel = Instance.new("TextLabel")
+    notificationLabel.Parent = notificationFrame
+    notificationLabel.Size = UDim2.new(0, 200, 0, 50)
+    notificationLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    notificationLabel.BackgroundTransparency = 0.5
+    notificationLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    notificationLabel.TextSize = 20
+    notificationLabel.Text = toolName .. " aktif"
+    notificationLabel.Visible = true
+
+    return notificationLabel
+end
+
+-- Bildirim mesajını göstermek için bir fonksiyon
+local function showNotification(toolName)
+    -- Yeni bildirim oluştur
+    local newNotification = createNotificationLabel(toolName)
+
+    -- Frame'in pozisyonunu yukarıya doğru kaydırıyoruz
+    local offset = #notificationFrame:GetChildren() * 60  -- Her yeni bildirimi 60 piksel yukarı kaydırıyoruz
+    newNotification.Position = UDim2.new(0, 0, 0, -offset)  -- Yeni bildirim en üste yerleşecek
+
+    -- 7 saniye sonra bildirimi gizle
+    wait(7)
+    newNotification:Destroy()
+end
+
+-- Workspace'i izleyerek araçları kontrol et
+game:GetService("Workspace").ChildAdded:Connect(function(child)
+    -- Eğer çocuk bir Tool ise ve listede varsa bildirim göster
+    if child:IsA("Tool") then
+        for _, toolName in ipairs(toolsList) do
+            if child.Name == toolName then
+                showNotification(toolName)
+                break
+            end
+        end
+    end
+end)
