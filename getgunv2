@@ -1,0 +1,206 @@
+local validWeapons = {
+    "USP-S", "USP Tactical", "Skorpion EVO", "SIG SAUER", "Remington 870 Sawed", 
+    "Remington 870", "Pen", "PKM", "P90", "P250", "Mossberg M590", "Milesmellows", 
+    "Micro UZI", "MP7S", "MP5SD", "MP5D", "MP5", "M4A1", "M1911", "Howa Type 64", 
+    "HK416", "HK33", "Glock 21", "Glock 19 [NEWRC]", "Glock 19", "Glock 17", "G36K", 
+    "FAMAS", "EUSP-S", "Colf Python", "Baretta M9", "Beanbag Shotgun", "Battering Ram", 
+    "AR-15", "AK-47", "AK-308", "AK-104"
+}
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local workspace = game:GetService("Workspace")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local UserInputService = game:GetService("UserInputService")
+
+-- Başlangıçtaki pozisyonu kaydedelim
+local initialPosition = character.HumanoidRootPart.Position
+
+-- Karakterin tüm parçalarının CanCollide özelliğini false yapmak
+local function disableCollisions()
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+        end
+    end
+end
+
+-- Karakterin tüm parçalarının CanCollide özelliğini true yapmak
+local function enableCollisions()
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = true
+        end
+    end
+end
+
+-- F tuşuna otomatik basmayı simüle eden fonksiyon
+local function pressFKeyAutomatically()
+    for i = 1, 3 do
+        -- F tuşuna basma
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+        wait(0.1)  -- 0.1 saniye bekle
+        -- F tuşunu bırakma
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)
+        wait(0.1)  -- 0.1 saniye bekle
+    end
+end
+
+-- Silahın pozisyonuna ışınlanmak için fonksiyon
+local function teleportToTool(weaponName)
+    local tool = workspace:FindFirstChild(weaponName)
+    if tool and tool:FindFirstChild("Handle") then
+        local toolPosition = tool.Handle.Position
+        local teleportPosition = toolPosition - Vector3.new(0, 3, 0)  -- Z ekseninde 3 birim aşağıya
+
+        -- Karakterin CanCollide özelliğini false yapıyoruz
+        disableCollisions()
+
+        -- Karakteri silahın altına ışınlıyoruz
+        character:SetPrimaryPartCFrame(CFrame.new(teleportPosition))
+
+        -- Işınlamadan sonra, karakterin Anchor'ını true yapıyoruz
+        wait(0.1)  -- 0.1 saniye bekleyelim
+
+        -- Karakterin tüm parçalarını Anchored yapıyoruz
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Anchored = true
+            end
+        end
+
+        -- Humanoid'i devre dışı bırakıyoruz, karakterin hareket etmemesi için
+        local humanoid = character:WaitForChild("Humanoid")
+        humanoid.PlatformStand = true
+
+        -- 2 saniye bekleyelim
+        wait(2)
+
+        -- Başlangıç pozisyonuna geri ışınlanalım
+        character:SetPrimaryPartCFrame(CFrame.new(initialPosition))
+
+        -- Bütün vücut parçalarının Anchored özelliğini false yapıyoruz
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Anchored = false
+            end
+        end
+
+        -- Humanoid'i tekrar aktif hale getiriyoruz
+        humanoid.PlatformStand = false
+
+        -- Karakterin tüm parçalarının CanCollide özelliğini tekrar true yapıyoruz
+        enableCollisions()
+
+        -- F tuşuna 0.1 hızla 3 kere basmayı sağlıyoruz
+        pressFKeyAutomatically()
+    else
+        print(weaponName .. " silahı workspace'te bulunamadı veya Handle'ı yok!")
+    end
+end
+
+-- GUI kısmı
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Ana çerçeve oluşturuluyor
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 100)
+frame.Position = UDim2.new(1, -310, 0, 10)  -- Ekranın üst kısmına yerleşiyor
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.Parent = screenGui
+
+-- Köşeleri yuvarlatıyoruz
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 20)
+corner.Parent = frame
+
+-- "Silahları Göster" butonu
+local showWeaponsButton = Instance.new("TextButton")
+showWeaponsButton.Size = UDim2.new(1, 0, 0.5, 0)
+showWeaponsButton.Position = UDim2.new(0, 0, 0, 0)
+showWeaponsButton.Text = "Silahları Göster"
+showWeaponsButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+showWeaponsButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+showWeaponsButton.TextSize = 18
+showWeaponsButton.Parent = frame
+
+-- Panel için bir Frame (silahlar için)
+local weaponPanel = Instance.new("Frame")
+weaponPanel.Size = UDim2.new(1, 0, 0, 300)  -- Yükseklik arttırıldı
+weaponPanel.Position = UDim2.new(0, 0, 0, 100)
+weaponPanel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+weaponPanel.Visible = false  -- Başlangıçta gizli
+weaponPanel.Parent = screenGui
+
+-- Silah listesine ait içerik kısmı
+local weaponListFrame = Instance.new("Frame")
+weaponListFrame.Size = UDim2.new(1, 0, 1, 0)
+weaponListFrame.Position = UDim2.new(0, 0, 0, 0)
+weaponListFrame.BackgroundTransparency = 1
+weaponListFrame.Parent = weaponPanel
+
+-- Silahları ekranda gösterecek fonksiyon
+local function updateWeaponList()
+    -- Silahları temizleyelim
+    for _, child in pairs(weaponListFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+
+    -- workspace'teki tüm tool'ları alıyoruz
+    local yOffset = 0  -- Butonların arasındaki mesafeyi ayarlamak için
+    for _, tool in pairs(workspace:GetChildren()) do
+        -- Tool ve Handle'ı kontrol et
+        if tool:IsA("Tool") and tool:FindFirstChild("Handle") then
+            local weaponName = tool.Name
+
+            -- Yalnızca geçerli silahlar listesinde bulunanları göster
+            if table.find(validWeapons, weaponName) then
+                local button = Instance.new("TextButton")
+                button.Size = UDim2.new(1, 0, 0, 40)
+                button.Position = UDim2.new(0, 0, 0, yOffset)
+                button.Text = weaponName
+                button.TextColor3 = Color3.fromRGB(255, 255, 255)
+                button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                button.TextSize = 18
+                button.Parent = weaponListFrame
+
+                -- Butona tıklanırsa, ışınlanma işlemi gerçekleşecek
+                button.MouseButton1Click:Connect(function()
+                    teleportToTool(weaponName)  -- Seçilen silaha ışınlan
+                    weaponPanel.Visible = false  -- Paneli kapatıyoruz
+                end)
+
+                -- Butonların arasındaki mesafeyi ayarlıyoruz
+                yOffset = yOffset + 45  -- Her buton için 45 birimlik mesafe bırakıyoruz
+            end
+        end
+    end
+end
+
+-- "Silahları Göster" butonuna tıklanma işlemi
+showWeaponsButton.MouseButton1Click:Connect(function()
+    weaponPanel.Visible = not weaponPanel.Visible  -- Paneli görünür/gizli yapıyoruz
+    if weaponPanel.Visible then
+        updateWeaponList()  -- Silahları listele
+    end
+end)
+
+-- P tuşuna basıldığında GUI'yi açmak veya kapatmak için
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end  -- Eğer oyun tuşa basışı işledi zaten, devam etme
+    if input.KeyCode == Enum.KeyCode.P then
+        weaponPanel.Visible = not weaponPanel.Visible  -- Paneli görünür/gizli yapıyoruz
+        if weaponPanel.Visible then
+            updateWeaponList()  -- Silahları listele
+        end
+    end
+end)
+
+-- Oyuncu öldüğünde GUI'yi tekrar gösteremek için
+player.CharacterAdded:Connect(function(character)
+    -- GUI'yi tekrar görünür yapalım
+    weaponPanel.Visible = false
+end)
