@@ -1,0 +1,164 @@
+-- Kullanıcı araçları listesini tanımlıyoruz
+local toolsList = {
+    "USP-S", "USP Tactical", "Skorpion EVO", "SIG SAUER", "Remington 870 Sawed", 
+    "Remington 870", "Pen", "PKM", "P90", "P250", "Mossberg M590", "Milesmellows", 
+    "Micro UZI", "MP7S", "MP5SD", "MP5D", "MP5", "M4A1", "M1911", "Howa Type 64", 
+    "HK416", "HK33", "Glock 21", "Glock 19 [NEWRC]", "Glock 19", "Glock 17", "G36K", 
+    "FAMAS", "EUSP-S", "Colf Python", "Baretta M9", "Beanbag Shotgun", "Battering Ram", 
+    "AR-15", "AK-47", "AK-308", "AK-104"
+}
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+-- Başlangıçtaki pozisyonu kaydedelim
+local initialPosition = character.HumanoidRootPart.Position
+
+-- Karakterin tüm parçalarının CanCollide özelliğini false yapmak
+local function disableCollisions()
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+        end
+    end
+end
+
+-- Karakterin tüm parçalarının CanCollide özelliğini true yapmak
+local function enableCollisions()
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = true
+        end
+    end
+end
+
+-- Karakteri silahın altına ışınlamak
+local function teleportToTool(weaponName)
+    local tool = game.Workspace:FindFirstChild(weaponName)
+    if tool and tool:IsA("Tool") and tool:FindFirstChild("Handle") then
+        local toolPosition = tool.Handle.Position
+        local teleportPosition = toolPosition - Vector3.new(0, 3, 0)  -- Z ekseninde 3 birim aşağıya
+
+        -- Karakterin CanCollide özelliğini false yapıyoruz
+        disableCollisions()
+
+        -- Karakteri silahın altına ışınlıyoruz
+        character:SetPrimaryPartCFrame(CFrame.new(teleportPosition))
+
+        -- Işınlamadan sonra, karakterin Anchor'ını true yapıyoruz
+        wait(0.1)  -- 0.1 saniye bekleyelim
+
+        -- Karakterin tüm parçalarını Anchored yapıyoruz
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Anchored = true
+            end
+        end
+
+        -- Humanoid'i devre dışı bırakıyoruz, karakterin hareket etmemesi için
+        local humanoid = character:WaitForChild("Humanoid")
+        humanoid.PlatformStand = true
+
+        -- 2 saniye bekleyelim
+        wait(2)
+
+        -- Başlangıç pozisyonuna geri ışınlanalım
+        character:SetPrimaryPartCFrame(CFrame.new(initialPosition))
+
+        -- Bütün vücut parçalarının Anchored özelliğini false yapıyoruz
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.Anchored = false
+            end
+        end
+
+        -- Humanoid'i tekrar aktif hale getiriyoruz
+        humanoid.PlatformStand = false
+
+        -- Karakterin tüm parçalarının CanCollide özelliğini tekrar true yapıyoruz
+        enableCollisions()
+    else
+        print(weaponName .. " silahı workspace'te bulunamadı veya Handle'ı yok!")
+    end
+end
+
+-- Bildirim için bir Frame oluşturuyoruz
+local notificationFrame = Instance.new("Frame")
+notificationFrame.Parent = screenGui
+notificationFrame.Size = UDim2.new(0, 220, 0, 300)  -- Yüksekliği artırdık çünkü bildirimler üst üste eklenecek
+notificationFrame.Position = UDim2.new(0.85, 0, 0.7, 0)  -- Başlangıçta sağ alt köşe
+notificationFrame.BackgroundTransparency = 1  -- Şeffaf
+
+-- TELEPORT butonunu oluşturma
+local function createTeleportButton(notification, toolName)
+    local teleportButton = Instance.new("TextButton")
+    teleportButton.Size = UDim2.new(0, 200, 0, 50)
+    teleportButton.Position = UDim2.new(0, 0, 0, 60)  -- Bildirimin altında
+    teleportButton.Text = "TELEPORT"
+    teleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    teleportButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    teleportButton.TextSize = 18
+    teleportButton.Parent = notification
+
+    -- TELEPORT butonuna tıklandığında yapılacak işlem
+    teleportButton.MouseButton1Click:Connect(function()
+        teleportToTool(toolName)
+        -- Bildirimi kaldırıyoruz
+        notification:Destroy()
+    end)
+
+    -- Yeni bir TextLabel ekleyelim: Tool adı
+    local toolNameLabel = Instance.new("TextLabel")
+    toolNameLabel.Size = UDim2.new(0, 200, 0, 30)
+    toolNameLabel.Position = UDim2.new(0, 0, 0, 110)  -- Teleport butonunun altına
+    toolNameLabel.Text = toolName
+    toolNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toolNameLabel.BackgroundTransparency = 1
+    toolNameLabel.TextSize = 16
+    toolNameLabel.Parent = notification
+
+    -- 5 saniye sonra TELEPORT butonunu kaldırıyoruz
+    wait(5)
+    teleportButton:Destroy()
+end
+
+-- Bildirim mesajını göstermek için bir fonksiyon
+local function showNotification(toolName)
+    -- Yeni bildirim oluştur
+    local newNotification = Instance.new("Frame")
+    newNotification.Parent = notificationFrame
+    newNotification.Size = UDim2.new(0, 200, 0, 160)  -- Bildirimin boyutunu ayarlıyoruz
+    newNotification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    newNotification.BackgroundTransparency = 0.5
+
+    -- TELEPORT butonunu ekliyoruz
+    createTeleportButton(newNotification, toolName)
+
+    -- Frame'in pozisyonunu yukarıya doğru kaydırıyoruz
+    local offset = #notificationFrame:GetChildren() * 160  -- Her yeni bildirimi 160 piksel yukarı kaydırıyoruz
+    newNotification.Position = UDim2.new(0, 0, 0, -offset)  -- Yeni bildirim en üste yerleşecek
+
+    -- Bildirimi 7 saniye sonra kaldırıyoruz (butonun ardından)
+    wait(7)
+
+    -- Bu noktada, tüm bildirim frame'ini ve tüm öğeleri siliyoruz
+    for _, child in pairs(newNotification:GetChildren()) do
+        child:Destroy()  -- Her öğeyi tek tek yok ediyoruz
+    end
+    newNotification:Destroy()  -- Frame'in tamamını da yok ediyoruz
+end
+
+-- Workspace'i izleyerek araçları kontrol et
+game:GetService("Workspace").ChildAdded:Connect(function(child)
+    -- Eğer çocuk bir Tool ise ve listede varsa bildirim göster
+    if child:IsA("Tool") then
+        for _, toolName in ipairs(toolsList) do
+            if child.Name == toolName then
+                showNotification(toolName)
+                break
+            end
+        end
+    end
+end)
