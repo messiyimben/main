@@ -12,19 +12,20 @@ local guns = {
     "AR-15", "AK-47", "AK-308", "AK-104"
 }
 
--- Kullanıcı girişi dinleyicisini tanımlama
-local function onInputBegan(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == Enum.KeyCode.Q then
+-- Reload fonksiyonunu sürekli çalıştıracak fonksiyon
+local function constantReload()
+    while true do
         for _, gunName in ipairs(guns) do
             local gun = character:FindFirstChild(gunName)
             if gun and gun:FindFirstChild("Event") and gun.Event:FindFirstChild("WeaponReload") then
                 gun.Event.WeaponReload:FireServer()
             end
         end
+        wait(1)  -- 1 saniye bekleme, böylece her saniye kontrol eder
     end
 end
 
--- Dinleyiciyi başlat
-UserInputService.InputBegan:Connect(onInputBegan)
+-- Script aktif olduğunda hızlı reload fonksiyonunu başlat
+constantReload()
 
-print("Fast Reload script activated!")
+print("Fast Reload script activated and running continuously!")
